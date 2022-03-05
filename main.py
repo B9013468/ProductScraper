@@ -27,3 +27,19 @@ class ProductSpider(scrapy.Spider):
     def parse(self, response):
         # set of div containing all the items I want except the titles of the products
         items = response.css('.package-features')
+
+        # for each item create proper fields
+        for item in items:
+            yield {
+                'optionTitle': item.xpath(
+                    'preceding-sibling::div[1]/h3/text()').get(),  # get h3 text from previous sibling
+                'description': item.css('.package-name ::text').get() + item.css('.package-description ::text').get(),
+                'price': item.css('.price-big ::text').get(),
+                'discount': item.css('.package-price p::text').get()
+            }
+
+            yield (scrapy.Request(f'https://wltest.dns-systems.net/', callback=self.parse))
+
+# start crawling
+process.crawl(ProductSpider)
+process.start()
