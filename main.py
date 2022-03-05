@@ -1,6 +1,8 @@
 import scrapy
 from scrapy.crawler import CrawlerProcess
 import json
+import re
+from operator import itemgetter
 
 # SETTINGS
 process = CrawlerProcess(settings= {
@@ -43,3 +45,43 @@ class ProductSpider(scrapy.Spider):
 # start crawling
 process.crawl(ProductSpider)
 process.start()
+
+# sort json file
+class SortJson():
+
+    # Open JSON file to read
+    input_file = open('items.json', "r", encoding='utf8')
+    json_array = json.load(input_file)
+
+
+    # for each item in json array convert prices from strings to floats (if subscription is monthly, multiply by 12 to get the annual price)
+
+    for item in json_array:
+        if(item.get("optionTitle").split()[-1] == "Months"):
+            newPrice = re.findall("\d+\.\d+",item.get("price"))
+            item["price"] = float(newPrice[0])*12
+        else:
+            newPrice = re.findall("\d+\.\d+", item.get("price"))
+            item["price"] = float(newPrice[0])
+
+
+    # sort array by annual price
+    json_array = sorted(json_array, key=itemgetter('price'), reverse=True)
+
+    # convert prices from float back to string (divide by 12 to get the original prices for monthly subs and round up to 2 decimals)
+    for item in json_array:
+        if(item.get("optionTitle").split()[-1] == "Months"):
+            item["price"] = "£" + str("%.2f" % round(item.get("price")/12, 2))
+        else:
+            item["price"] = "£" + str(item.get("price"))
+
+    # print new json in terminal
+    for item in json_array:
+        print(item)
+
+    #close json file and reopen it to write
+    input_file.close()
+    input_file = open('items.json', "w", encoding='utf8')
+    # dump new json array and close json file
+    json.dump(json_array, input_file, indent=4, separators=(',', ': '), ensure_ascii=False)
+    input_file.close()
