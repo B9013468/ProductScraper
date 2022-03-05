@@ -13,8 +13,6 @@ process = CrawlerProcess(settings= {
     'USER_AGENT': 'Mozilla/5.0 (Windows NT 6.1; WOW64) AppleWebKit/535.7 (KHTML, like Gecko) Chrome/16.0.912.36 Safari/535.7',
     'ROBOTSTXT_OBEY': False,
     'DOWNLOAD_DELAY': 4,
-
-
 })
 
 # Spider class
