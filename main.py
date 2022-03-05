@@ -3,6 +3,7 @@ from scrapy.crawler import CrawlerProcess
 import json
 import re
 from operator import itemgetter
+import os
 
 # SETTINGS
 process = CrawlerProcess(settings= {
@@ -18,6 +19,11 @@ process = CrawlerProcess(settings= {
 
 # Spider class
 class ProductSpider(scrapy.Spider):
+
+    # delete json file if already exists
+    if os.path.isfile("items.json") and os.access("items.json", os.R_OK):
+        os.remove("items.json")
+
     # name of spider
     name = 'products'
 
